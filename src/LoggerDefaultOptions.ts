@@ -1,5 +1,5 @@
-import { LoggerLevel } from './LoggerLevel'
-import { LoggerOptions } from './LoggerOptions'
+import { LoggerLevel } from './LoggerLevel';
+import { LoggerOptions } from './LoggerOptions';
 
 /**
  * Default options for a Logger.
@@ -8,4 +8,4 @@ import { LoggerOptions } from './LoggerOptions'
  */
 export const LoggerDefaultOptions: LoggerOptions = {
   level: LoggerLevel.DEBUG
-}
+};

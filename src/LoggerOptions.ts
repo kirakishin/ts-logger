@@ -1,4 +1,4 @@
-import { LoggerLevel } from './LoggerLevel'
+import { LoggerLevel } from './LoggerLevel';
 
 /**
  * Available options of a Logger.
@@ -7,11 +7,11 @@ import { LoggerLevel } from './LoggerLevel'
  * @type {{level?: LoggerLevel, caller?: string}}
  */
 export class LoggerOptions {
-  level?: LoggerLevel
-  caller?: string
+  level?: LoggerLevel;
+  caller?: string;
 
   constructor(options: LoggerOptions) {
-    this.level = options.level
-    this.caller = options.caller
+    this.level = options.level;
+    this.caller = options.caller;
   }
 }

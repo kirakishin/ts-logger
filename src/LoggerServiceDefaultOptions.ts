@@ -1,6 +1,6 @@
-import { LoggerLevel } from './LoggerLevel'
-import { LoggerServiceOptions } from './LoggerServiceOptions'
-import { LoggerInfoMode } from './LoggerInfoMode'
+import { LoggerLevel } from './LoggerLevel';
+import { LoggerServiceOptions } from './LoggerServiceOptions';
+import { LoggerInfoMode } from './LoggerInfoMode';
 
 /**
  * Default Options of the LoggerService
@@ -26,4 +26,4 @@ export const LoggerServiceDefaultOptions: LoggerServiceOptions = {
     warn: () => console.warn,
     error: () => console.error
   }
-}
+};

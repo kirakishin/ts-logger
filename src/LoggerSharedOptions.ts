@@ -1,5 +1,5 @@
-import { LoggerLevel } from './LoggerLevel'
-import { LoggerOptions } from './LoggerOptions'
+import { LoggerLevel } from './LoggerLevel';
+import { LoggerOptions } from './LoggerOptions';
 
 /**
  * Available options of a Logger with a shared options object.
@@ -7,12 +7,12 @@ import { LoggerOptions } from './LoggerOptions'
  * @type {{key: string, level: LoggerLevel}}
  */
 export class LoggerSharedOptions extends LoggerOptions {
-  key: string
+  key: string;
 
   // level: LoggerLevel;
 
   constructor(options: LoggerSharedOptions) {
-    super(options)
-    this.key = options.key
+    super(options);
+    this.key = options.key;
   }
 }

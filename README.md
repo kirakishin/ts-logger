@@ -11,7 +11,7 @@ Create your logger and use it (one logger with their own options).
 ```typescript
 import {LoggerLevel, LoggerOptions} from '@kirakishin/ts-logger';
 
-const LoggerOptions:LoggerOptions = new LoggerOptions({
+const myloggerOptions:LoggerOptions = new LoggerOptions({
   level:LoggerLevel.DEBUG
 });
 
@@ -19,9 +19,10 @@ export class FooClass {
   private logger: Logger;
 
   constructor() {
-    this.logger = loggerService.getLogger(this, LoggerOptions);
+    this.logger = loggerService.getLogger(this, myloggerOptions);
     this.logger.debug('my debug');
   }
+}
 ```
 will produces :
 ```javascript

@@ -1,5 +1,5 @@
-import { LoggerLevel } from './LoggerLevel'
-import { LoggerInfoMode } from './LoggerInfoMode'
+import { LoggerLevel } from './LoggerLevel';
+import { LoggerInfoMode } from './LoggerInfoMode';
 
 /**
  * Available Options of the LoggerService
@@ -22,25 +22,25 @@ import { LoggerInfoMode } from './LoggerInfoMode'
  * logger : object with log methods definition (abstract layer to use winston or another layer)
  */
 export class LoggerServiceOptions {
-  level?: LoggerLevel
-  global?: boolean
-  globalKey?: string
-  globalObject?: any
-  store?: boolean
-  storeKey?: string
-  localLogging?: boolean
-  remoteLogging?: boolean
-  environment: 'server' | 'client' = 'client'
-  cacheLineNumbers?: number
-  datetime?: boolean
-  loggerInfo?: boolean
-  loggerInfoMode?: LoggerInfoMode
+  level?: LoggerLevel;
+  global?: boolean;
+  globalKey?: string;
+  globalObject?: any;
+  store?: boolean;
+  storeKey?: string;
+  localLogging?: boolean;
+  remoteLogging?: boolean;
+  environment: 'server' | 'client' = 'client';
+  cacheLineNumbers?: number;
+  datetime?: boolean;
+  loggerInfo?: boolean;
+  loggerInfoMode?: LoggerInfoMode;
   logger?: {
-    trace: Function
-    log: Function
-    debug: Function
-    info: Function
-    warn: Function
-    error: Function
-  }
+    trace: Function;
+    log: Function;
+    debug: Function;
+    info: Function;
+    warn: Function;
+    error: Function;
+  };
 }
