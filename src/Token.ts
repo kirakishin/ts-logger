@@ -1,5 +1,5 @@
 import { LogContext } from './LogContext';
-import { LogLevel } from 'typedoc/dist/lib/utils';
+import { LoggerLevel } from './LoggerLevel';
 
 export interface Token {
   name: string;
@@ -10,7 +10,7 @@ export interface Token {
 export const levelToken: Token = {
   name: 'level',
   value: (logContext: LogContext) => {
-    return LogLevel[logContext.level].toLowerCase();
+    return LoggerLevel[logContext.level].toLowerCase();
   },
   format: 'brackets'
 };
