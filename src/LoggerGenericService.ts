@@ -401,23 +401,19 @@ export class LoggerGenericService implements IloggerService {
       }
 
       // append each objects to a 'content' array
-      const content: any[] = [];
-      args.forEach((arg, argIndex) => {
-        if (arg !== null && typeof arg === 'object') {
-          content.push(arg);
-          args[argIndex] = `<${content.length - 1}>`;
-        }
-      });
-      if (content.length > 0) {
-        obj['content'] = content;
+      if (
+        args.length === 1 &&
+        args[0] !== null &&
+        typeof args[0] === 'object'
+      ) {
+        obj['content'] = args[0];
+      } else {
+        obj['content'] = util.format.apply(this, args);
       }
-
-      // append args to message
-      obj['message'] = util.format.apply(this, args);
 
       try {
         const logger: any = this.options.logger;
-        logger['log'].apply(this, obj);
+        logger['log'].apply(logger['log'], [obj]);
       } catch (e) {
         console.log(obj);
       }
