@@ -129,11 +129,14 @@ export class LoggerGenericService implements IloggerService {
 
   public level(level?: LoggerLevel): any {
     if (level !== undefined) {
-      // const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      // this.getConsoleMethod('info', params)(
-      //   `log level changes from ${this._options.level} to ${level}`
-      // );
-      // console.info.apply(window.console, params);
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
+        `log level changes from ${this._options.level} to ${level}`
+      );
+
       this._options.level = level;
       this.options.store && this.store();
       return this;
@@ -144,13 +147,16 @@ export class LoggerGenericService implements IloggerService {
 
   public localLogging(localLogging?: boolean): any {
     if (localLogging !== undefined) {
-      // const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      // this.getConsoleMethod('info', params)(
-      //   `localLogging changes from ${
-      //     this._options.localLogging
-      //   } to ${localLogging}`
-      // );
-      // console.info.apply(window.console, params);
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
+        `localLogging changes from ${
+          this._options.localLogging
+        } to ${localLogging}`
+      );
+
       this._options.localLogging = localLogging;
       this.options.store && this.store();
       return this;
@@ -161,13 +167,16 @@ export class LoggerGenericService implements IloggerService {
 
   public remoteLogging(remoteLogging?: boolean): any {
     if (remoteLogging !== undefined) {
-      // const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      // this.getConsoleMethod('info', params)(
-      //   `remoteLogging changes from ${
-      //     this._options.remoteLogging
-      //   } to ${remoteLogging}`
-      // );
-      // console.info.apply(window.console, params);
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
+        `remoteLogging changes from ${
+          this._options.remoteLogging
+        } to ${remoteLogging}`
+      );
+
       this._options.remoteLogging = remoteLogging;
       this.options.store && this.store();
       return this;

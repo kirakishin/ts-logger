@@ -26,7 +26,9 @@ export const datetimeToken: Token = {
 export const callerToken: Token = {
   name: 'caller',
   value: (logContext: LogContext) => {
-    return logContext.logger.getFullCallerName();
+    return logContext.logger
+      ? logContext.logger.getFullCallerName()
+      : undefined;
   },
   format: 'braces'
 };
