@@ -409,7 +409,7 @@ export class LoggerGenericService implements IloggerService {
         }
       }
 
-      // append each objects to a 'content' array
+      // set log content to object when there is a single object argument
       if (
         args.length === 1 &&
         args[0] !== null &&
