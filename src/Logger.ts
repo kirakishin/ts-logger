@@ -82,7 +82,8 @@ export class Logger {
     if (level !== undefined) {
       const logContext: LogContext = {
         level: LoggerLevel.INFO,
-        logger: this
+        logger: this,
+        subLogger: 'level'
       };
       this.service.getConsoleLogger(logContext)(
         `log level changes from ${this.options.level} to ${level}`
