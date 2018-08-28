@@ -3,6 +3,7 @@ import { LoggerGenericService } from './LoggerGenericService';
 import { LoggerSharedOptions } from './LoggerSharedOptions';
 import { LoggerLevel } from './LoggerLevel';
 import { LoggerDefaultOptions } from './LoggerDefaultOptions';
+import { LogContext } from './LogContext';
 
 /**
  * Manage a logger.
@@ -79,12 +80,14 @@ export class Logger {
 
   public level(level?: LoggerLevel): any {
     if (level !== undefined) {
-      // const params = this.service.addContextInfos('info', [
-      //   '[Logger]',
-      //   `[${this.caller}]`,
-      //   `log level changes from ${this.options.level} to ${level}`
-      // ]);
-      // console.info.apply(window.console, params);
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        logger: this
+      };
+      this.service.getConsoleLogger(logContext)(
+        `log level changes from ${this.options.level} to ${level}`
+      );
+
       this.options.level = level;
       return this;
     } else {
