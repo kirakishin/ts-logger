@@ -117,7 +117,7 @@ export class FooClass {
 }
 ```
 will produces :
-```javascript
+```text
 [DEBUG] LOGGER{FooClass:4} my debug
 [DEBUG] LOGGER{FooClass:4} [myFunc1] i am now in myFunc1
 [DEBUG] LOGGER{FooClass:4} [getFooName] i am getFooName method
@@ -131,6 +131,7 @@ will produces :
 
 Available Options of the LoggerService :
  * `level` : see {@link LoggerLevel}
+ * `tokens` : some context data for each log (by default, this is the datetime, the level, and the caller: `[datetimeToken, levelToken, callerToken]`)
  * `global` : export the LoggerService instance into `globalObject[globalKey]`.
    * If enabled, it permit to access to loggers via `globalObject[globalKey].loggers()`
  * `globalKey` : key used to store the LoggerService into `globalObject[globalKey]`
@@ -142,7 +143,94 @@ Available Options of the LoggerService :
  * `localLogging` : log into client console ?
  * `remoteLogging` : cache log and send it to the server [TODO]
  * `cacheLineNumber` : number of cached line before send it to the server
- * `datetime` : add datetime into each log line
  * `loggerInfo` : display logger info used for the log line
  * `loggerInfoMode` : logger info is displayed as a string (same as sent to server) or displayed as object on which you can click to see corresponding logger
  * `logger` : object with log methods definition (abstract layer to use winston or another layer)
+ 
+ ## Log customization
+ 
+ ### Use case
+ We have logs like :
+ ```
+ [DEBUG] LOGGER{DesignService:4} [get] getting object code <DEMO>
+ [DEBUG] LOGGER{RightsService:4} [preCheckSuperAdmin] checking user rights...
+ [DEBUG] LOGGER{RightsService:4} [preCheckSuperAdmin] bypass rights is enabled for user
+ ```
+ To fully track user actions, we need something like :
+ ```
+ [DEBUG] [user1] [request0001] {DesignService:4} [get] getting object code <DEMO>
+ [DEBUG] [user1] [request0001] [preCheckSuperAdmin] checking user rights...
+ [DEBUG] [user1] [request0001] [preCheckSuperAdmin] bypass rights is enabled for user
+ ```
+ 
+ ### Implementation
+ 
+You can use the `token` concept, each part of a log message is a token. The tokens are configurable in the loggerServiceOptions.
+ 
+ By default, tokens `datetime`, `level`, `caller` and `subLogger` are enabled.
+
+ 
+ We provide a list of tokens, there are default tokens : 
+ - datetime
+ - caller
+ - subLogger
+ - level
+ 
+ User can create his own tokens, for example : 
+ - requestId
+ - user
+ ...
+ 
+ ```
+ export const LoggerServiceOptions: LoggerServiceOptions = {
+   level: LoggerLevel.ERROR,
+   tokens: [
+     levelToken,
+     {
+       name:'login',
+       value: () => this.logContext.get('login'),
+       format: 'brackets'
+     },
+     {
+       name:'requestId',
+       value: () => this.logContext.get('requestId'),
+       format: 'brackets'
+     },
+     callerToken
+   ],
+   global: true,
+   globalKey: 'logger',
+   store: false,
+ ...
+ ```
+ 
+ ## Log in JSON
+ 
+ ### Use case
+ For analysis we want to send logs to an elastic search instance. Logs should be in JSON.
+ 
+ ### Implementation
+ 
+ To enable json logging, just set `json` to true in options :
+ ```
+ export const LoggerServiceOptions: LoggerServiceOptions = {
+   ...
+   json: true
+ ...
+ ```
+ Example of json log entry :
+ ```
+ {
+ 	level : 'info',
+ 	login : 'login001', # custom token
+ 	caller : 'access',
+ 	content : {
+ 		url : '/api/favicon-16x16.png',
+ 		method : 'GET',
+ 		login : undefined,
+ 		ip : '::ffff:127.0.0.1',
+ 		status : '304',
+ 		responseTime : '1'
+ 	}
+ }
+ ```
