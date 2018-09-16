@@ -3,6 +3,7 @@ import { LoggerGenericService } from './LoggerGenericService';
 import { LoggerSharedOptions } from './LoggerSharedOptions';
 import { LoggerLevel } from './LoggerLevel';
 import { LoggerDefaultOptions } from './LoggerDefaultOptions';
+import { LogContext } from './LogContext';
 
 /**
  * Manage a logger.
@@ -79,28 +80,20 @@ export class Logger {
 
   public level(level?: LoggerLevel): any {
     if (level !== undefined) {
-      const params = this.service.addContextInfos('info', [
-        '[Logger]',
-        `[${this.caller}]`,
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        logger: this,
+        subLogger: 'level'
+      };
+      this.service.getConsoleLogger(logContext)(
         `log level changes from ${this.options.level} to ${level}`
-      ]);
-      console.info.apply(window.console, params);
+      );
+
       this.options.level = level;
       return this;
     } else {
       return this.options.level;
     }
-  }
-
-  public toConsole() {
-    const obj: any = {};
-    const callerName = this.getFullCallerName();
-    obj[callerName] = { options: this.options, logger: this };
-    return obj;
-  }
-
-  public toServerString(): string {
-    return `LOGGER{${this.getFullCallerName()}:${this.level()}}`;
   }
 
   public subLogger(name?: string, withId = false) {
@@ -109,32 +102,26 @@ export class Logger {
     } else if (withId) {
       name = `${name}.#${this.service.increment()}`;
     }
-    const nameSurrounded = `[${name}]`;
+
     const logger = this;
-    const obj = {
+    return {
       get trace() {
-        return logger
-          .checkLevel(LoggerLevel.TRACE)
-          .bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.TRACE, name);
       },
       get log() {
-        return logger.checkLevel(LoggerLevel.LOG).bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.LOG, name);
       },
       get debug() {
-        return logger
-          .checkLevel(LoggerLevel.DEBUG)
-          .bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.DEBUG, name);
       },
       get warn() {
-        return logger.checkLevel(LoggerLevel.WARN).bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.WARN, name);
       },
       get info() {
-        return logger.checkLevel(LoggerLevel.INFO).bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.INFO, name);
       },
       get error() {
-        return logger
-          .checkLevel(LoggerLevel.ERROR)
-          .bind(logger, nameSurrounded);
+        return logger.checkLevel(LoggerLevel.ERROR, name);
       },
       subLogger(newName?: string) {
         if (!newName) {
@@ -144,10 +131,9 @@ export class Logger {
       },
       prettify: this.prettify
     };
-    return obj;
   }
 
-  private checkLevel(level: LoggerLevel) {
+  private checkLevel(level: LoggerLevel, subLogger?: string) {
     let canLog = false;
     if (
       (level === LoggerLevel.TRACE &&
@@ -172,21 +158,9 @@ export class Logger {
         this.options.level &&
         this.options.level.valueOf() <= this.service.level().valueOf()
       ) {
-        const args = [this];
-        switch (level) {
-          case LoggerLevel.TRACE:
-            return this.service.getTrace.apply(this.service, args);
-          case LoggerLevel.LOG:
-            return this.service.getLog.apply(this.service, args);
-          case LoggerLevel.DEBUG:
-            return this.service.getDebug.apply(this.service, args);
-          case LoggerLevel.WARN:
-            return this.service.getWarn.apply(this.service, args);
-          case LoggerLevel.INFO:
-            return this.service.getInfo.apply(this.service, args);
-          case LoggerLevel.ERROR:
-            return this.service.getError.apply(this.service, args);
-        }
+        return this.service.getConsoleLogger.apply(this.service, [
+          { level: level, logger: this, subLogger: subLogger }
+        ]);
       }
     }
 
@@ -195,7 +169,7 @@ export class Logger {
     };
   }
 
-  private getFullCallerName(): string {
+  public getFullCallerName(): string {
     let callerName = this.caller;
     if (this.options instanceof LoggerSharedOptions) {
       callerName = `${this.options.key}.${callerName}`;

@@ -1,9 +1,11 @@
 import { LoggerLevel } from './LoggerLevel';
 import { LoggerInfoMode } from './LoggerInfoMode';
+import { Token } from './Token';
 
 /**
  * Available Options of the LoggerService
  * level : see {@link LoggerLevel}
+ * tokens : [TODO]
  * global : export the LoggerService instance into `globalObject`[globalKey]. If enabled,
  * it permit to access to loggers via `globalObject`[globalKey].loggers()
  * globalKey : key used to store the LoggerService into `globalObject`[globalKey]
@@ -23,16 +25,17 @@ import { LoggerInfoMode } from './LoggerInfoMode';
  */
 export class LoggerServiceOptions {
   level?: LoggerLevel;
+  tokens?: Token[];
   global?: boolean;
   globalKey?: string;
   globalObject?: any;
+  json?: boolean;
   store?: boolean;
   storeKey?: string;
   localLogging?: boolean;
   remoteLogging?: boolean;
   environment: 'server' | 'client' = 'client';
   cacheLineNumbers?: number;
-  datetime?: boolean;
   loggerInfo?: boolean;
   loggerInfoMode?: LoggerInfoMode;
   logger?: {

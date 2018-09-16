@@ -11,3 +11,4 @@ export * from './LoggerOptions';
 export * from './LoggerServiceDefaultOptions';
 export * from './LoggerServiceOptions';
 export * from './LoggerSharedOptions';
+export * from './Token';

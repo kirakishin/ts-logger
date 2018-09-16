@@ -1,12 +1,14 @@
 import { LoggerLevel } from './LoggerLevel';
 import { LoggerServiceOptions } from './LoggerServiceOptions';
 import { LoggerInfoMode } from './LoggerInfoMode';
+import { callerToken, datetimeToken, levelToken } from './Token';
 
 /**
  * Default Options of the LoggerService
  */
 export const LoggerServiceDefaultOptions: LoggerServiceOptions = {
   level: LoggerLevel.ERROR,
+  tokens: [datetimeToken, levelToken, callerToken],
   global: true,
   globalKey: 'logger',
   store: false,
@@ -15,7 +17,6 @@ export const LoggerServiceDefaultOptions: LoggerServiceOptions = {
   remoteLogging: false,
   environment: 'server',
   cacheLineNumbers: 3,
-  datetime: true,
   loggerInfo: true,
   loggerInfoMode: LoggerInfoMode.Object,
   logger: {

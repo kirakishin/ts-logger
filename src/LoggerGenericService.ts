@@ -2,8 +2,9 @@ import { LoggerServiceOptions } from './LoggerServiceOptions';
 import { Logger } from './Logger';
 import { LoggerSharedOptions } from './LoggerSharedOptions';
 import { LoggerLevel } from './LoggerLevel';
-import { LoggerInfoMode } from './LoggerInfoMode';
 import { LoggerServiceDefaultOptions } from './LoggerServiceDefaultOptions';
+import { LogContext } from './LogContext';
+import * as util from 'util';
 
 export interface IloggerService {
   getLogger(instance: any, options?: any): Logger;
@@ -15,8 +16,6 @@ export interface IloggerService {
   store(): LoggerGenericService;
 
   unstore(): LoggerGenericService;
-
-  getDebug(...args: any[]): any;
 }
 
 /**
@@ -130,11 +129,14 @@ export class LoggerGenericService implements IloggerService {
 
   public level(level?: LoggerLevel): any {
     if (level !== undefined) {
-      const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      this.getConsoleMethod('info', params)(
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
         `log level changes from ${this._options.level} to ${level}`
       );
-      // console.info.apply(window.console, params);
+
       this._options.level = level;
       this.options.store && this.store();
       return this;
@@ -145,13 +147,16 @@ export class LoggerGenericService implements IloggerService {
 
   public localLogging(localLogging?: boolean): any {
     if (localLogging !== undefined) {
-      const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      this.getConsoleMethod('info', params)(
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
         `localLogging changes from ${
           this._options.localLogging
         } to ${localLogging}`
       );
-      // console.info.apply(window.console, params);
+
       this._options.localLogging = localLogging;
       this.options.store && this.store();
       return this;
@@ -162,13 +167,16 @@ export class LoggerGenericService implements IloggerService {
 
   public remoteLogging(remoteLogging?: boolean): any {
     if (remoteLogging !== undefined) {
-      const params = this.addContextInfos('info', ['[LoggerGenericService]']);
-      this.getConsoleMethod('info', params)(
+      const logContext: LogContext = {
+        level: LoggerLevel.INFO,
+        subLogger: 'LoggerGenericService'
+      };
+      this.getConsoleLogger(logContext)(
         `remoteLogging changes from ${
           this._options.remoteLogging
         } to ${remoteLogging}`
       );
-      // console.info.apply(window.console, params);
+
       this._options.remoteLogging = remoteLogging;
       this.options.store && this.store();
       return this;
@@ -232,30 +240,6 @@ export class LoggerGenericService implements IloggerService {
     return this;
   }
 
-  public getTrace(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.TRACE, args);
-  }
-
-  public getLog(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.LOG, args);
-  }
-
-  public getDebug(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.DEBUG, args);
-  }
-
-  public getWarn(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.WARN, args);
-  }
-
-  public getInfo(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.INFO, args);
-  }
-
-  public getError(...args: any[]) {
-    return this.getConsoleLogger(LoggerLevel.ERROR, args);
-  }
-
   public sent() {
     // console.groupCollapsed(`LoggerGenericService sending logs (${this.cache.length} lines)`);
     this.cache.map(line => {
@@ -263,14 +247,6 @@ export class LoggerGenericService implements IloggerService {
     });
     // console.groupEnd();
     this.cache = [];
-  }
-
-  public addContextInfos(level: string, args: any) {
-    args.splice(0, 0, `[${level.toUpperCase()}]`);
-    if (this.options.datetime) {
-      args.splice(0, 0, `[${new Date().toISOString()}]`);
-    }
-    return args;
   }
 
   private getExceptionWithErrorLineNumber(
@@ -294,31 +270,36 @@ export class LoggerGenericService implements IloggerService {
     return message + ' \n' + aux;
   }
 
-  private getArgsWithLoggerForConsole(args: any) {
-    const newArgs: any = [];
-    for (const i in args) {
-      if (args[i] instanceof Logger) {
-        if (this.options.loggerInfo) {
-          if (
-            this.options.loggerInfoMode === LoggerInfoMode.String ||
-            this.options.environment === 'server'
-          ) {
-            newArgs[i] = args[i].toServerString();
-          } else if (this.options.loggerInfoMode === LoggerInfoMode.Object) {
-            newArgs[i] = args[i].toConsole();
+  private getArgsForConsole(logContext: LogContext): any[] {
+    const args = [];
+
+    if (this.options.tokens) {
+      for (const token of this.options.tokens) {
+        const value = token.value(logContext);
+        if (value) {
+          switch (token.format) {
+            case 'none':
+              break;
+            case 'brackets':
+              args.push(`[${value}]`);
+              break;
+            case 'braces':
+              args.push(`{${value}}`);
+              break;
           }
         }
-      } else {
-        newArgs[i] = args[i];
       }
     }
-    return newArgs;
+
+    return args;
   }
 
-  private cacheLog(level: string, ...args: any[]) {
+  private cacheLog(logContext: LogContext, ...args: any[]) {
+    const level = LoggerLevel[logContext.level].toLowerCase();
+
     if (this.localLogging()) {
       const loggerMethod: any = this.getConsoleMethod(level, []);
-      loggerMethod.apply(loggerMethod, this.getArgsWithLoggerForConsole(args));
+      loggerMethod.apply(loggerMethod, this.getArgsForConsole(logContext));
     }
     const newArgs: any[] = [];
     for (const i in args) {
@@ -371,40 +352,42 @@ export class LoggerGenericService implements IloggerService {
     }
   }
 
-  private getConsoleLogger(level: LoggerLevel, args: any) {
+  public getConsoleLogger(logContext: LogContext) {
     let canLog = false;
     if (
-      (level === LoggerLevel.TRACE &&
+      (logContext.level === LoggerLevel.TRACE &&
         this.level().valueOf() >= LoggerLevel.TRACE) ||
-      (level === LoggerLevel.LOG &&
+      (logContext.level === LoggerLevel.LOG &&
         this.level().valueOf() >= LoggerLevel.LOG) ||
-      (level === LoggerLevel.DEBUG &&
+      (logContext.level === LoggerLevel.DEBUG &&
         this.level().valueOf() >= LoggerLevel.DEBUG) ||
-      (level === LoggerLevel.WARN &&
+      (logContext.level === LoggerLevel.WARN &&
         this.level().valueOf() >= LoggerLevel.WARN) ||
-      (level === LoggerLevel.INFO &&
+      (logContext.level === LoggerLevel.INFO &&
         this.level().valueOf() >= LoggerLevel.INFO) ||
-      (level === LoggerLevel.ERROR &&
+      (logContext.level === LoggerLevel.ERROR &&
         this.level().valueOf() >= LoggerLevel.ERROR)
     ) {
       canLog = true;
     }
-    const levelStr = LoggerLevel[level].toLowerCase();
 
     if (canLog) {
-      args = this.addContextInfos(levelStr, args);
-
       if (this.remoteLogging()) {
-        return (...args2: any[]) => {
-          const params = args.concat(args2);
-          return this.cacheLog.apply(this, [levelStr].concat(params));
+        return (...args: any[]) => {
+          return this.cacheLog.apply(this, [logContext, args]);
         };
       }
+
       if (this.localLogging()) {
-        return this.getConsoleMethod(
-          levelStr,
-          this.getArgsWithLoggerForConsole(args)
-        );
+        if (this.options.json) {
+          return this.getConsoleJsonMethod(logContext);
+        } else {
+          const method = LoggerLevel[logContext.level].toLowerCase();
+          return this.getConsoleMethod(
+            method,
+            this.getArgsForConsole(logContext)
+          );
+        }
       }
     }
     return () => {
@@ -412,7 +395,41 @@ export class LoggerGenericService implements IloggerService {
     };
   }
 
-  private getConsoleMethod(method: string, args: any) {
+  private getConsoleJsonMethod(logContext: LogContext): Function {
+    return (...args: any[]) => {
+      const obj: any = {};
+
+      // append each token to obj
+      if (this.options.tokens) {
+        for (const token of this.options.tokens) {
+          const value = token.value(logContext);
+          if (value) {
+            obj[token.name] = value;
+          }
+        }
+      }
+
+      // set log content to object when there is a single object argument
+      if (
+        args.length === 1 &&
+        args[0] !== null &&
+        typeof args[0] === 'object'
+      ) {
+        obj['content'] = args[0];
+      } else {
+        obj['content'] = util.format.apply(this, args);
+      }
+
+      try {
+        const logger: any = this.options.logger;
+        logger['log'].apply(logger['log'], [obj]);
+      } catch (e) {
+        console.log(obj);
+      }
+    };
+  }
+
+  private getConsoleMethod(method: string, args: any): Function {
     args.splice(0, 0, this);
     // args.splice(1, 0, 'UNIFIED_LOGGER');
     // console.debug only exists on chrome and its equal to log, so replace by log
