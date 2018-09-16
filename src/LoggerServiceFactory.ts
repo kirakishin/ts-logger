@@ -5,8 +5,8 @@ import { LoggerOptions } from './LoggerOptions';
 
 export class LoggerServiceFactory {
   private static _logger: LoggerGenericService;
-  public getLogger: Logger;
-  public loggers: {
+  public getLogger: (instance: any, options?: any) => Logger;
+  public loggers: () => {
     global: LoggerServiceOptions;
     loggers: {
       [p: string]: LoggerOptions;
