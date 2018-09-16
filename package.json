@@ -1,6 +1,6 @@
 {
   "name": "@kirakishin/ts-logger",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "",
   "keywords": [],
   "main": "dist/ts-logger.umd.js",
