@@ -1,11 +1,17 @@
 import { LoggerGenericService } from './LoggerGenericService';
 import { LoggerServiceOptions } from './LoggerServiceOptions';
 import { Logger } from './Logger';
+import { LoggerOptions } from './LoggerOptions';
 
 export class LoggerServiceFactory {
   private static _logger: LoggerGenericService;
-  public getLogger: Function;
-  public loggers: Function;
+  public getLogger: Logger;
+  public loggers: {
+    global: LoggerServiceOptions;
+    loggers: {
+      [p: string]: LoggerOptions;
+    };
+  };
 
   constructor() {
     LoggerServiceFactory._logger = new LoggerGenericService();

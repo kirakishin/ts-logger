@@ -5,6 +5,7 @@ import { LoggerLevel } from './LoggerLevel';
 import { LoggerServiceDefaultOptions } from './LoggerServiceDefaultOptions';
 import { LogContext } from './LogContext';
 import * as util from 'util';
+import { LoggerOptions } from './LoggerOptions';
 
 export interface IloggerService {
   getLogger(instance: any, options?: any): Logger;
@@ -110,7 +111,12 @@ export class LoggerGenericService implements IloggerService {
   }
 
   public loggers() {
-    const obj: any = {
+    const obj: {
+      global: LoggerServiceOptions;
+      loggers: {
+        [p: string]: LoggerOptions;
+      };
+    } = {
       global: this.options,
       loggers: {}
     };
