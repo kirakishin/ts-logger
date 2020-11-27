@@ -11,6 +11,8 @@ export const LoggerServiceDefaultOptions: LoggerServiceOptions = {
   tokens: [datetimeToken, levelToken, callerToken],
   global: true,
   globalKey: 'logger',
+  json: false,
+  jsonStringify: false,
   store: false,
   storeKey: 'logger',
   localLogging: true,

@@ -3,14 +3,15 @@ import { LoggerInfoMode } from './LoggerInfoMode';
 import { Token } from './Token';
 
 /**
- * Available Options of the LoggerService
  * level : see {@link LoggerLevel}
- * tokens : [TODO]
+ * tokens : some context data for each log (by default, this is the datetime, the level, and the caller: `[datetimeToken, levelToken, callerToken]`)
  * global : export the LoggerService instance into `globalObject`[globalKey]. If enabled,
  * it permit to access to loggers via `globalObject`[globalKey].loggers()
  * globalKey : key used to store the LoggerService into `globalObject`[globalKey]
  * globalObject : global object in which we store the loggerService (can be window on front side,
  * or another custom object)
+ * json : output a json for the log
+ * jsonStringify : stringify the json output log
  * store : store options of LoggerService into LocalStorage. only level, localLogging, remoteLogging
  * are loaded from LocalStorage
  * storeKey : key used to store the LoggerService options into LocalStorage
@@ -30,6 +31,7 @@ export class LoggerServiceOptions {
   globalKey?: string;
   globalObject?: any;
   json?: boolean;
+  jsonStringify?: boolean;
   store?: boolean;
   storeKey?: string;
   localLogging?: boolean;

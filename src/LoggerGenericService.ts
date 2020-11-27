@@ -428,7 +428,11 @@ export class LoggerGenericService implements IloggerService {
 
       try {
         const logger: any = this.options.logger;
-        logger['log'].apply(logger['log'], [obj]);
+        let output = obj;
+        if (this.options.jsonStringify) {
+          output = JSON.stringify(obj);
+        }
+        logger['log'].apply(logger['log'], [output]);
       } catch (e) {
         console.log(obj);
       }
