@@ -220,7 +220,11 @@ export class LoggerGenericService implements IloggerService {
   public load(): LoggerGenericService {
     let stored;
     if (this.options.storeKey) {
-      stored = localStorage.getItem(this.options.storeKey);
+      try {
+        stored = localStorage.getItem(this.options.storeKey);
+      } catch (e) {
+        console.warn('no localstorage available. ignore it.');
+      }
     }
     if (stored) {
       let storedOptions: LoggerServiceOptions;
@@ -246,7 +250,11 @@ export class LoggerGenericService implements IloggerService {
   unstore(): LoggerGenericService {
     this._options.store = false;
     if (this.options.storeKey) {
-      localStorage.removeItem(this.options.storeKey);
+      try {
+        localStorage.removeItem(this.options.storeKey);
+      } catch (e) {
+        console.warn('no localstorage available. ignore it.');
+      }
     }
     return this;
   }

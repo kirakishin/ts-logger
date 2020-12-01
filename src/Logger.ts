@@ -98,7 +98,11 @@ export class Logger {
     }
   }
 
-  public subLogger(name?: string, withId = false) {
+  public subLogger(
+    name?: string,
+    withId = false,
+    customContext?: LogCustomContext
+  ) {
     if (!name) {
       name = `#${this.service.increment()}`;
     } else if (withId) {
@@ -108,34 +112,38 @@ export class Logger {
     const logger = this;
     return {
       get trace() {
-        return logger.checkLevel(LoggerLevel.TRACE, name);
+        return logger.checkLevel(LoggerLevel.TRACE, name, customContext);
       },
       get log() {
-        return logger.checkLevel(LoggerLevel.LOG, name);
+        return logger.checkLevel(LoggerLevel.LOG, name, customContext);
       },
       get debug() {
-        return logger.checkLevel(LoggerLevel.DEBUG, name);
+        return logger.checkLevel(LoggerLevel.DEBUG, name, customContext);
       },
       get warn() {
-        return logger.checkLevel(LoggerLevel.WARN, name);
+        return logger.checkLevel(LoggerLevel.WARN, name, customContext);
       },
       get info() {
-        return logger.checkLevel(LoggerLevel.INFO, name);
+        return logger.checkLevel(LoggerLevel.INFO, name, customContext);
       },
       get error() {
-        return logger.checkLevel(LoggerLevel.ERROR, name);
+        return logger.checkLevel(LoggerLevel.ERROR, name, customContext);
       },
       subLogger(newName?: string) {
         if (!newName) {
           newName = `#${logger.service.increment()}`;
         }
-        return logger.subLoggerRecursive(name, newName);
+        return logger.subLoggerRecursive(name, newName, customContext);
       },
       prettify: this.prettify
     };
   }
 
-  private checkLevel(level: LoggerLevel, subLogger?: string) {
+  private checkLevel(
+    level: LoggerLevel,
+    subLogger?: string,
+    customContext?: LogCustomContext
+  ) {
     let canLog = false;
     if (
       (level === LoggerLevel.TRACE &&
@@ -162,7 +170,7 @@ export class Logger {
       ) {
         return this.service.getConsoleLogger.apply(this.service, [
           { level: level, logger: this, subLogger: subLogger },
-          this.customContext
+          customContext ? customContext : this.customContext
         ]);
       }
     }
@@ -180,7 +188,11 @@ export class Logger {
     return callerName;
   }
 
-  private subLoggerRecursive(name?: string, newName?: string) {
-    return this.subLogger(`${name}.${newName}`);
+  private subLoggerRecursive(
+    name?: string,
+    newName?: string,
+    customContext?: LogCustomContext
+  ) {
+    return this.subLogger(`${name}.${newName}`, false, customContext);
   }
 }
