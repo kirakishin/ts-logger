@@ -6,6 +6,7 @@ import { LoggerServiceDefaultOptions } from './LoggerServiceDefaultOptions';
 import { LogContext } from './LogContext';
 import * as util from 'util';
 import { LoggerOptions } from './LoggerOptions';
+import { LogCustomContext } from './LogCustomContext';
 
 export interface IloggerService {
   getLogger(instance: any, options?: any): Logger;
@@ -81,7 +82,11 @@ export class LoggerGenericService implements IloggerService {
     return LoggerGenericService.count++;
   }
 
-  public getLogger(instance: any, options?: any): Logger {
+  public getLogger(
+    instance: any,
+    options?: any,
+    customContext?: LogCustomContext
+  ): Logger {
     let caller;
     // if caller was given into options, use it instead of className
     if (options && options.caller) {
@@ -101,7 +106,7 @@ export class LoggerGenericService implements IloggerService {
     if (LoggerGenericService.loggers[caller]) {
       return LoggerGenericService.loggers[caller];
     }
-    const logger = new Logger(this, instance, options);
+    const logger = new Logger(this, instance, options, customContext);
     LoggerGenericService.loggers[caller] = logger;
     return logger;
   }
@@ -276,7 +281,10 @@ export class LoggerGenericService implements IloggerService {
     return message + ' \n' + aux;
   }
 
-  private getArgsForConsole(logContext: LogContext): any[] {
+  private getArgsForConsole(
+    logContext: LogContext,
+    customContext?: LogCustomContext
+  ): any[] {
     const args = [];
 
     if (this.options.tokens) {
@@ -295,6 +303,10 @@ export class LoggerGenericService implements IloggerService {
           }
         }
       }
+    }
+
+    if (customContext) {
+      args.push(customContext);
     }
 
     return args;
@@ -358,7 +370,10 @@ export class LoggerGenericService implements IloggerService {
     }
   }
 
-  public getConsoleLogger(logContext: LogContext) {
+  public getConsoleLogger(
+    logContext: LogContext,
+    customContext?: LogCustomContext
+  ) {
     let canLog = false;
     if (
       (logContext.level === LoggerLevel.TRACE &&
@@ -386,12 +401,12 @@ export class LoggerGenericService implements IloggerService {
 
       if (this.localLogging()) {
         if (this.options.json) {
-          return this.getConsoleJsonMethod(logContext);
+          return this.getConsoleJsonMethod(logContext, customContext);
         } else {
           const method = LoggerLevel[logContext.level].toLowerCase();
           return this.getConsoleMethod(
             method,
-            this.getArgsForConsole(logContext)
+            this.getArgsForConsole(logContext, customContext)
           );
         }
       }
@@ -401,7 +416,10 @@ export class LoggerGenericService implements IloggerService {
     };
   }
 
-  private getConsoleJsonMethod(logContext: LogContext): Function {
+  private getConsoleJsonMethod(
+    logContext: LogContext,
+    customContext?: LogCustomContext
+  ): Function {
     return (...args: any[]) => {
       const obj: any = {};
 
@@ -413,6 +431,9 @@ export class LoggerGenericService implements IloggerService {
             obj[token.name] = value;
           }
         }
+      }
+      if (customContext) {
+        obj['context'] = customContext;
       }
 
       // set log content to object when there is a single object argument

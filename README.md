@@ -239,3 +239,27 @@ You can use the `token` concept, each part of a log message is a token. The toke
  	}
  }
  ```
+
+ ## use custom context
+ In order to add some dynamic information to a declared logger,
+ you can add a custom context which will be outputted for each log.
+ 
+ use:
+ ```typescript
+import {loggerService, LogCustomContext, LoggerLevel, LoggerSharedOptions} from '@kirakishin/ts-logger';
+
+const SharedLoggerOptions = new LoggerSharedOptions({
+  key: 'FooBarModule',
+  level: LoggerLevel.DEBUG
+});
+
+export interface CustomContext extends LogCustomContext {
+  foo: string;
+}
+
+const myCustomContext: CustomContext = {
+    foo: 'bar'
+}
+
+this.logger = loggerService.getLogger(this, SharedLoggerOptions, myCustomContext);
+```

@@ -1,6 +1,8 @@
 // Import here Polyfills if needed. Recommended core-js (npm i -D core-js)
 // import "core-js/fn/array.find"
 // ...
+export * from './LogContext';
+export * from './LogCustomContext';
 export * from './Logger';
 export * from './LoggerDefaultOptions';
 export * from './LoggerGenericService';

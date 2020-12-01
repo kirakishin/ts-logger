@@ -4,6 +4,7 @@ import { LoggerSharedOptions } from './LoggerSharedOptions';
 import { LoggerLevel } from './LoggerLevel';
 import { LoggerDefaultOptions } from './LoggerDefaultOptions';
 import { LogContext } from './LogContext';
+import { LogCustomContext } from './LogCustomContext';
 
 /**
  * Manage a logger.
@@ -17,7 +18,8 @@ export class Logger {
   constructor(
     private service: LoggerGenericService,
     instance: any,
-    options?: LoggerOptions
+    options?: LoggerOptions,
+    private customContext?: LogCustomContext
   ) {
     instance = instance ? instance : undefined;
     if (options instanceof LoggerSharedOptions) {
@@ -159,7 +161,8 @@ export class Logger {
         this.options.level.valueOf() <= this.service.level().valueOf()
       ) {
         return this.service.getConsoleLogger.apply(this.service, [
-          { level: level, logger: this, subLogger: subLogger }
+          { level: level, logger: this, subLogger: subLogger },
+          this.customContext
         ]);
       }
     }

@@ -2,10 +2,15 @@ import { LoggerGenericService } from './LoggerGenericService';
 import { LoggerServiceOptions } from './LoggerServiceOptions';
 import { Logger } from './Logger';
 import { LoggerOptions } from './LoggerOptions';
+import { LogCustomContext } from './LogCustomContext';
 
 export class LoggerServiceFactory {
   private static _logger: LoggerGenericService;
-  public getLogger: (instance: any, options?: any) => Logger;
+  public getLogger: (
+    instance: any,
+    options?: any,
+    customContext?: LogCustomContext
+  ) => Logger;
   public loggers: () => {
     global: LoggerServiceOptions;
     loggers: {
